@@ -1,0 +1,57 @@
+Alphabet:
+
+a. Upper (A-Z) and lower case letters (a-z) of the English alphabet
+
+       b. Underline character '_';
+
+       c. Decimal digits (0-9);
+
+Lexic:
+
+      a.Special symbols, representing:
+
+- operators + - * / == != < > <= = >= %
+
+- separators [ ] { } ; space
+
+- reserved words:
+
+    char const for else if int bool read write var while 
+
+        b.identifiers
+
+  -a sequence of letters and  digits, such that the first character is a letter; the rule is:
+
+
+    identifier = letter | letter{(letter|digit)}
+
+    letter = "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
+
+    digit = "0" | "1" |...| "9"
+
+    zero = "0"
+    positiveDigit = "1" |...| "9"
+
+      c.constants
+
+1.integer - rule:
+
+      noconst="+"positiveNo|"-"positiveNo|no 
+
+      no:=zero|digit|positiveDigit{no}
+      positiveNo = positiveDigit{digit}
+
+2.character
+
+    character='letter'|'digit'
+
+3.string
+
+      constchar:="string"
+      emptyString = ""
+      string=emptyString|char{string}
+
+      char=letter|digit
+
+4. array
+    array = identifier"["positiveNo"]"

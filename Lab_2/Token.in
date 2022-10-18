@@ -1,0 +1,3 @@
+<operators>::=+|-|=|>|<|==|!=|>=|<=|*|**|/|%
+<separators>::=[|]|{|}|(|):|.|space|tab
+<keywords>::=char|const|for|else|if|int|bool|read|write|var|while  
