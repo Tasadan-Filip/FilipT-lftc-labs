@@ -46,8 +46,8 @@ Lexic:
 3.string
 
       emptyString = ""
-      constchar = "string" 
-      string=emptyString|char{string}
+      constchar = "string" | emptyString
+      string=char{string} 
 
       char=letter|digit
 
