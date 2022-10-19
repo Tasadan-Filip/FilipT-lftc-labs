@@ -2,9 +2,7 @@ Alphabet:
 
 a. Upper (A-Z) and lower case letters (a-z) of the English alphabet
 
-       b. Underline character '_';
-
-       c. Decimal digits (0-9);
+       b. Decimal digits (0-9);
 
 Lexic:
 
@@ -38,7 +36,7 @@ Lexic:
 
       noconst="+"positiveNo|"-"positiveNo|no 
 
-      no:=zero|digit|positiveDigit{no}
+      no = digit|positiveDigit{digit}
       positiveNo = positiveDigit{digit}
 
 2.character
@@ -47,8 +45,8 @@ Lexic:
 
 3.string
 
-      constchar:="string"
       emptyString = ""
+      constchar = "string" | emptyString
       string=emptyString|char{string}
 
       char=letter|digit

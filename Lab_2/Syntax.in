@@ -20,7 +20,7 @@ simplstmt = assignstmt | iostmt
 
 assignstmt = identifier "=" expression
 
-expression = expression ("+"|"-") term | term|constant
+expression = expression ("+"|"-") term | constant
 
 term = term ("*"|"/"|"%") factor | factor
 
