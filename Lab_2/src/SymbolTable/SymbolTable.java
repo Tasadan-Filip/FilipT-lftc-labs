@@ -33,7 +33,7 @@ public class SymbolTable {
     public SymbolTablePositionModel GetPositionByElement(String elementToGet) throws Exception {
         int elementHashValue = this.HashFunction(elementToGet);
         int elementListPosition = SearchForElementInTableList(elementToGet, elementHashValue);
-        if(elementListPosition == -1) {
+        if(elementListPosition != -1) {
             return new SymbolTablePositionModel(elementHashValue, elementListPosition);
         } else {
             throw new Exception("Element does not exist");
@@ -67,5 +67,23 @@ public class SymbolTable {
         }
 
         return -1;
+    }
+
+    @Override
+    public String toString() {
+        var symbolTableString = "";
+        for(var tableList: tableStructure) {
+            for(var tableElement: tableList) {
+                if(tableElement != null) {
+                    try {
+                        symbolTableString += "[element= " + tableElement + ", position= " + this.GetPositionByElement(tableElement).toString() + "]\n";;
+                    } catch (Exception exception) {
+                        System.out.println(exception);
+                    }
+                }
+            }
+        }
+
+        return symbolTableString;
     }
 }

@@ -1,8 +1,8 @@
 Sintactical rules: 
 
-program = decllist ";" stmtlist 
+program = decllist " ;" stmtlist 
 
-decllist = declaration | declaration ";" decllist
+decllist = declaration | declaration " ;" decllist
 
 declaration = (type identifier) | arraydecl
 
@@ -10,34 +10,34 @@ type = "bool" | "char" | "int"
 
 arraydecl = type identifier"[" nr "]"
 
-cmpdstmt = "{" stmtlist "}"
+cmpdstmt = "{ " stmtlist "}"
 
-stmtlist = stmt | stmt ";" stmtlist
+stmtlist = stmt | stmt " ;" stmtlist
 
 stmt = simplstmt | structstmt
 
 simplstmt = assignstmt | iostmt
 
-assignstmt = identifier "=" expression
+assignstmt = identifier " = " expression
 
-expression = expression ("+"|"-") term | constant
+expression = expression (" + "|" - ") term | constant
 
-term = term ("*"|"/"|"%") factor | factor
+term = term (" * "|" / "|" % ") factor | factor
 
 constant = noconst
 
-factor = "(" expression ")" | identifier | constant
+factor = "( " expression " ) " | identifier | constant
 
-iostmt = ("read" | "write") "(" identifier ")"
+iostmt = (" read " | "write ") "(" identifier ")"
 
 structstmt = cmpdstmt | ifstmt | whilestmt
 
-ifstmt = "if" "(" condition ")" cmpdstmt
+ifstmt = "if" " ( " condition " ) " cmpdstmt
 
-whilestmt = "while" "(" condition ")" cmpdstmt
+whilestmt = "while" " ( " condition " ) " cmpdstmt
 
-forstmt = "for" "(" assignstmt ";" condition ";" assignstmt ")" cmpdstmt
+forstmt = "for" " ( " assignstmt " ; " condition " ; " assignstmt " ) " cmpdstmt
 
 condition = expression RELATION expression
 
-RELATION = "<" | "<=" | "==" | ">=" | ">" | "!="
+RELATION = " < " | " <= " | " == " | " >= " | " > " | " != "
