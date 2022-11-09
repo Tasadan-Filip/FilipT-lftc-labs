@@ -1,8 +1,7 @@
-int a ;
-int b ;
-int s ;
-read ( a ) ;
-read ( b ) ;
-
-s = a + b ;
-write ( s ) ;
+read(a);
+int a;
+int a;
+int s;
+read(b);
+s=a>=b;
+write(s);

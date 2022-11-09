@@ -1,17 +1,17 @@
-int n ;
-int nr ;
-int i ;
-int s ;
-char message[101] ;
+int n;
+int nr;
+int i;
+int s;
+char message[101];
 
-s = 0 ;
-message = "Output" ;
+s=0;
+message="Output";
 
-read ( n ) ;
-for ( i = 1 ; i <= n ; i = i + 1 ) {
-    read ( nr ) ;
-    s = s + nr ;
+read(n);
+for(i=1;i<=n;i=i+1) {
+    read(nr);
+    s=s+nr;
 }
 
-write ( message ) ;
-write ( s ) ;
+write(message);
+write(s);
