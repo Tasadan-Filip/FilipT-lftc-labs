@@ -1,6 +1,7 @@
 package Scanner;
 
 import Errors.LexicalError;
+import FA.FA;
 import PIF.*;
 import SymbolTable.SymbolTable;
 
@@ -36,6 +37,7 @@ public class Scanner {
             List<String> tokensList = Arrays.stream(line.split("\\+|-|=|>|<|==|!=|>=|<=|\\*|/|%| |;|\\)|\\(|]|\\[")).collect(Collectors.toList());
             characterFollowedByOperatorLineStack.clear();
             CheckLineForOperators(line);
+            int currentPosition = 0;
             for(var token : tokensList) {
                 var lexicalCheckReturnValue = CheckIfLexicallyCorrect(token);
                 if(lexicalCheckReturnValue == -1) {
@@ -57,6 +59,7 @@ public class Scanner {
                     pif.AddToPif(new PifTuple(characterFollowedByOperatorLineStack.get(0).getOperator(), null));
                     characterFollowedByOperatorLineStack.remove(0);
                 }
+                currentPosition += token.length();
             }
             lineNumber += 1;
         }
@@ -128,11 +131,16 @@ public class Scanner {
         return token.matches("char|const|for|else|if|int|bool|read|write|var|while");
     }
 
-    private boolean CheckIfIdentifier(String token) {
-        return token.matches("[a-zA-Z]+[a-zA-Z0-9]*");
+    private boolean CheckIfIdentifier(String token) throws Exception {
+        // FA implementation
+        FA faIdentifier = new FA("src\\FA_Identifier.in");
+        return faIdentifier.VerifyIfSequenceIsAcceptedByFA(token);
+
+        // Regex implementation
+        // return token.matches("[a-zA-Z]+[a-zA-Z0-9]*");
     }
 
-    private boolean CheckIfConstant(String token) {
+    private boolean CheckIfConstant(String token) throws Exception {
         return CheckIfIntegerConstant(token) ||
                 CheckIfCharacterConstant(token) ||
                 CheckIfStringConstant(token);
@@ -142,8 +150,13 @@ public class Scanner {
         return token.matches("[a-zA-z]+[a-zA-Z0-9]*\\[[1-9]+[0-9]*]");
     }
 
-    private boolean CheckIfIntegerConstant(String token) {
-        return token.matches("[0-9]|[1-9]+[0-9]*");
+    private boolean CheckIfIntegerConstant(String token) throws Exception {
+        // FA implementation
+        FA faIntegerConstant = new FA("src\\FA_IntegerConstant.in");
+        return faIntegerConstant.VerifyIfSequenceIsAcceptedByFA(token);
+
+        // Regex implementation
+        // return token.matches("[0-9]|[1-9]+[0-9]*");
     }
 
     private boolean CheckIfCharacterConstant(String token) {
@@ -153,6 +166,4 @@ public class Scanner {
     private boolean CheckIfStringConstant(String token) {
         return token.matches("\"[a-zA-Z0-9]*\"");
     }
-
-
 }

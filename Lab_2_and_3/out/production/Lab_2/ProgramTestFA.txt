@@ -1,0 +1,7 @@
+int x;
+int y;
+int z;
+read(x);
+z=x>=0;
+z=y<=100;
+write(z);
