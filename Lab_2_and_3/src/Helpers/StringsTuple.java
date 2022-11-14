@@ -11,22 +11,6 @@ public class StringsTuple {
         this.secondString = secondString;
     }
 
-    public String getFirstString() {
-        return firstString;
-    }
-
-    public void setFirstString(String firstString) {
-        this.firstString = firstString;
-    }
-
-    public String getSecondString() {
-        return secondString;
-    }
-
-    public void setSecondString(String secondString) {
-        this.secondString = secondString;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
