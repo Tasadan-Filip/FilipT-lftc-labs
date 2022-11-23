@@ -1,0 +1,7 @@
+S,A
+a,b,c,d
+S
+S$a,S
+S$b,S,c
+S$d,A
+A$d,c

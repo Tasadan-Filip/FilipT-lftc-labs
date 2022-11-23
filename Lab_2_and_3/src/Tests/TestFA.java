@@ -10,8 +10,8 @@ import java.io.FileNotFoundException;
 public class TestFA {
     public static void main(String[] args) throws Exception {
         FA testFa = new FA("src\\FA.in");
-        // testFa.DisplayElementMain();
-        // var verificationResult = testFa.VerifyIfSequenceIsAcceptedByFA("1");
-        // System.out.println(verificationResult);
+//         testFa.DisplayElementMain();
+         var verificationResult = testFa.VerifyIfSequenceIsAcceptedByFA("10000");
+         System.out.println(verificationResult);
     }
 }
