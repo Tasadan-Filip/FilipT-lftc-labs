@@ -12,7 +12,7 @@ Lexic:
 
 - separators [ ] { } ; space
 
-- reserved words: (operator, spearator, keyword, identifier, constant
+- reserved words (keywords): (operator, spearator, keyword, identifier, constant)
 
     char const for else if int bool read write var while 
 

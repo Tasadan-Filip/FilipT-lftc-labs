@@ -13,6 +13,7 @@ public class Grammar {
     List<String> terminalList;
     String startingSymbol;
     List<String> productionList;
+    // A -> ['A,b,C', 'C,b']
     Map<String, List<String>> productionMap;
 
     public Grammar(String filePath) throws Exception {
