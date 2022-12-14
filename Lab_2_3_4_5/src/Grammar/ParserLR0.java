@@ -10,11 +10,13 @@ public class ParserLR0 {
     private Grammar grammar;
     private Map<String, String> actionTable;
 
+    private List<Map<String, Integer>> gotoTable;
+
     public ParserLR0(Grammar grammar) {
         this.grammar = grammar;
     }
 
-    public Map<String, List<ProductionDotIndexTuple>>  computeClosureLR0(String source, List<ProductionDotIndexTuple> initialProductions)
+    public Map<String, List<ProductionDotIndexTuple>> computeClosureLR0(String source, List<ProductionDotIndexTuple> initialProductions)
     {
         // A -> .ABa
         // source: A, destination: [A B a], dotIndex = 0
@@ -154,15 +156,53 @@ public class ParserLR0 {
         while (!done) {
             done = true;
             for (var state : C) {
+                var idxOfState = C.indexOf(state);
                 for (var X : grammarElements) {
                     var gotoSubcall = goTo(state, X);
-                    if (gotoSubcall != null && !gotoSubcall.isEmpty() && C.contains(gotoSubcall)) {
-                        C.addAll(gotoSubcall);
+                    for (var newState : gotoSubcall) {
+                        if (!newState.isEmpty() && C.contains(newState)) {
+                            GotoTable.register(idxOfState, X, C.size(), gotoTable);
+                            C.add(newState);
+                        }
+                        if (C.contains(newState)) {
+                            var idxOf = C.indexOf(newState);
+                            GotoTable.register(idxOf, X, idxOf, gotoTable);
+                        }
                     }
                 }
             }
         }
 
         return C;
+    }
+
+    public int gotoOp(int stateIdx, String element) {
+        return GotoTable.get(gotoTable, stateIdx, element);
+    }
+
+    public void printGotoTable() {
+        var C = colCanLR();
+
+        for (int stateId=0; stateId<C.size(); stateId++) {
+            System.out.println(stateId + ": " + C.get(stateId));
+        }
+
+        System.out.println("  |");
+        for (var nonterm : grammar.nonterminalList) {
+            System.out.println(nonterm);
+        }
+        for (var term : grammar.nonterminalList) {
+            System.out.println(term);
+        }
+
+        for (int stateId=0; stateId<C.size(); stateId++) {
+            System.out.println(stateId + " |");
+            for (var nonterm : grammar.nonterminalList) {
+                System.out.println(gotoOp(stateId, nonterm));
+            }
+            for (var term : grammar.nonterminalList) {
+                System.out.println(gotoOp(stateId, term));
+            }
+        }
     }
 }
