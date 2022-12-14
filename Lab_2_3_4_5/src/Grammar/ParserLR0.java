@@ -8,11 +8,13 @@ import java.util.stream.Collectors;
 public class ParserLR0 {
     private Grammar grammar;
 
+    private List<Map<String, Integer>> gotoTable;
+
     public ParserLR0(Grammar grammar) {
         this.grammar = grammar;
     }
 
-    public Map<String, List<ProductionDotIndexTuple>>  computeClosureLR0(String source, List<ProductionDotIndexTuple> initialProductions)
+    public Map<String, List<ProductionDotIndexTuple>> computeClosureLR0(String source, List<ProductionDotIndexTuple> initialProductions)
     {
         // A -> .ABa
         // source: A, destination: [A B a], dotIndex = 0
@@ -99,10 +101,18 @@ public class ParserLR0 {
         while (!done) {
             done = true;
             for (var state : C) {
+                var idxOfState = C.indexOf(state);
                 for (var X : grammarElements) {
                     var gotoSubcall = goTo(state, X);
-                    if (gotoSubcall != null && !gotoSubcall.isEmpty() && C.contains(gotoSubcall)) {
-                        C.addAll(gotoSubcall);
+                    for (var newState : gotoSubcall) {
+                        if (!newState.isEmpty() && C.contains(newState)) {
+                            gotoTable.get(idxOfState).put(X, C.size());
+                            C.add(newState);
+                        }
+                        if (C.contains(newState)) {
+                            var idxOf = C.indexOf(newState);
+                            gotoTable.get(idxOf).put(X, idxOf);
+                        }
                     }
                 }
             }
