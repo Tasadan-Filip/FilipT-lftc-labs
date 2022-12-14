@@ -4,15 +4,26 @@ import java.util.List;
 import java.util.Map;
 
 public class ProductionDotIndexTuple {
+    String productionSource;
     List<String> productionRhs;     //["A", "B", "C"]
     int dotIndex;                   // 1
     //  S -> A.BC
     //  X = B
     //  S -> AB.C
 
-    public ProductionDotIndexTuple(List<String> productionRhs, int dotIndex) {
+
+    public ProductionDotIndexTuple(String productionSource, List<String> productionRhs, int dotIndex) {
+        this.productionSource = productionSource;
         this.productionRhs = productionRhs;
         this.dotIndex = dotIndex;
+    }
+
+    public String getProductionSource() {
+        return productionSource;
+    }
+
+    public void setProductionSource(String productionSource) {
+        this.productionSource = productionSource;
     }
 
     public List<String> getProductionRhs() {
