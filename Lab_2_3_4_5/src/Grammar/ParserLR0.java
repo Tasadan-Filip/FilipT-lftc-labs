@@ -121,6 +121,8 @@ public class ParserLR0 {
             }
             index = index + 1;
         }
+
+        return -1;
     }
 
     private List<Map<String, List<ProductionDotIndexTuple>>> goTo(Map<String, List<ProductionDotIndexTuple>> state, String X)
