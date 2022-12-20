@@ -14,7 +14,7 @@ public class Grammar {
     String startingSymbol;
     List<String> productionList;
     // A -> ['A,b,C', 'C,b']
-    Map<String, List<String>> productionMap;
+    Map<String, List<List<String>>> productionMap;
 
     public Grammar(String filePath) throws Exception {
         String fileText = ReadFromFile.Read(filePath);
@@ -103,7 +103,10 @@ public class Grammar {
                 rhsList = new LinkedList<String>();
                 rhsList.add(rhs);
             }
-            productionMap.put(lhs, rhsList);
+            if (!productionMap.containsKey(lhs)) {
+                productionMap.put(lhs, new ArrayList<>());
+            }
+            productionMap.get(lhs).add(rhsList);
         }
     }
 

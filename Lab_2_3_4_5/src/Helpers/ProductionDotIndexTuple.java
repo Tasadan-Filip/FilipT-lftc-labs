@@ -11,7 +11,10 @@ public class ProductionDotIndexTuple {
     //  X = B
     //  S -> AB.C
 
-
+    @Override
+    public String toString() {
+        return productionSource + "->" + String.join("", productionRhs) + "#" + dotIndex;
+    }
     public ProductionDotIndexTuple(String productionSource, List<String> productionRhs, int dotIndex) {
         this.productionSource = productionSource;
         this.productionRhs = productionRhs;

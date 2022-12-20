@@ -1,7 +1,6 @@
 S,A
-a,b,c,d
+a,b,c
 S
-S$a,S
-S$b,S,c
-S$d,A
-A$d,c
+S$a,A
+A$b,A
+A$c
