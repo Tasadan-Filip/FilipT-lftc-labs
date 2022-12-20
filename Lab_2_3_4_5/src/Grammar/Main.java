@@ -6,5 +6,6 @@ public class Main {
         var parser = new ParserLR0(grammar);
         parser.printGotoTable();
         parser.printActionTable();
+        parser.checkIfStringIsAcceptedByGrammar("abbc");
     }
 }

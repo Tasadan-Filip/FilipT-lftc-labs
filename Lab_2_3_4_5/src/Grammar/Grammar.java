@@ -1,9 +1,7 @@
 package Grammar;
 
 import FileOperations.ReadFromFile;
-import Helpers.StringsTuple;
 
-import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,7 +10,9 @@ public class Grammar {
     List<String> nonterminalList;
     List<String> terminalList;
     String startingSymbol;
-    List<String> productionList;
+    List<String> productionListAsString;
+    // the element from the first position (index = 0) will be the source, and from index = 1 to ... are symbols of the lhs of production
+    List<List<String>> productionList = new ArrayList<>();
     // A -> ['A,b,C', 'C,b']
     Map<String, List<List<String>>> productionMap;
 
@@ -21,7 +21,7 @@ public class Grammar {
         List<String> linesList = Arrays.stream(fileText.split("\n")).collect(Collectors.toList());
         productionMap = new HashMap<>();
         int currentLineNumber = 1;
-        productionList = new LinkedList<>();
+        productionListAsString = new LinkedList<>();
         for(var line: linesList) {
             if(currentLineNumber == 1) {
                 nonterminalList = Arrays.stream(line.split(",")).collect(Collectors.toList());
@@ -34,7 +34,7 @@ public class Grammar {
             }
             if(currentLineNumber >= 4) {
                 var lineProductions = Arrays.stream(line.split(";")).collect(Collectors.toList());
-                productionList = Stream.concat(productionList.stream(), lineProductions.stream()).collect(Collectors.toList());
+                productionListAsString = Stream.concat(productionListAsString.stream(), lineProductions.stream()).collect(Collectors.toList());
             }
             currentLineNumber = currentLineNumber + 1;
         }
@@ -72,7 +72,7 @@ public class Grammar {
                 System.out.println(startingSymbol);
                 break;
             case 4:
-                DisplayStringList(productionList);
+                DisplayStringList(productionListAsString);
                 break;
             default:
                 break;
@@ -89,7 +89,8 @@ public class Grammar {
     }
 
     private void TransformProductionStringListToMap() throws Exception {
-        for(var productionString : productionList) {
+        productionList.add(new ArrayList<>());
+        for(var productionString : productionListAsString) {
             var transitionStringSplit = productionString.split("\\$");
             var lhs = transitionStringSplit[0];
             var rhs = transitionStringSplit[1];
@@ -106,6 +107,10 @@ public class Grammar {
             if (!productionMap.containsKey(lhs)) {
                 productionMap.put(lhs, new ArrayList<>());
             }
+            var newProduction = new ArrayList<String>();
+            newProduction.add(lhs);
+            newProduction.addAll(rhsList);
+            productionList.add(newProduction);
             productionMap.get(lhs).add(rhsList);
         }
     }
