@@ -91,7 +91,11 @@ public class ParserLR0 {
         Integer currentStateIndex = 0;
 
         for(var stateProductions : closure) {
-            if(isAccept(stateProductions)) {
+            if (isAccept(stateProductions) && isReduce(stateProductions)) {
+                System.out.println("Shift-Reduce conflict detected!");
+                System.out.println(stateProductions);
+            }
+            else if(isAccept(stateProductions)) {
                 actionTable.put(currentStateIndex, "acc");
             } else if(isReduce(stateProductions)) {
                 var onlyKey = stateProductions.keySet().toArray()[0].toString();
@@ -117,6 +121,24 @@ public class ParserLR0 {
     private boolean isReduce(Map<String, List<ProductionDotIndexTuple>> stateProductions) {
         var onlyKey = stateProductions.keySet().toArray()[0].toString();
         var production = stateProductions.get(onlyKey).get(0);
+        //  false negative
+        System.out.println(stateProductions);
+        if (stateProductions.containsKey("S'")) return false;
+        //  conflict detection
+        if (stateProductions.size() > 1) {
+            int count = 0;
+            for (var key : stateProductions.keySet()) {
+                var value = stateProductions.get(key);
+                for (var prod : value) {
+                    if (prod.getDotIndex() == prod.getProductionRhs().size())
+                        count ++;
+                }
+            }
+            if (count > 1) {
+                System.out.println("Reduce-reduce conflict!");
+                System.out.println(stateProductions);
+            }
+        }
         return  stateProductions.size() == 1 &&
                 production.getDotIndex() == production.getProductionRhs().size();
     }
@@ -277,7 +299,6 @@ public class ParserLR0 {
             } else if(action.compareTo("shift") == 0) {
                 // symbol is either a terminal or a non-terminal
                 var symbol = inputStack.charAt(0);
-                System.out.println(symbol);
                 workStack = workStack + symbol;
                 inputStack = inputStack.substring(1);
                 var nextStateId = gotoOp(workStackTopStateId, String.valueOf(symbol));
@@ -287,7 +308,6 @@ public class ParserLR0 {
                 var reduceAction = action.split(" ");
                 var reduceProductionId = reduceAction[1].charAt(0) - '0';
                 var reduceProduction = grammar.productionList.get(reduceProductionId);
-                System.out.println(reduceProduction);
                 List <String> needed = reduceProduction.subList(1, reduceProduction.size());
                 needed = new ArrayList<>(needed);
                 List <TreeNode> sublist = new ArrayList<>();
@@ -326,7 +346,6 @@ public class ParserLR0 {
                 workStack = workStack.substring(0, workStackIndex);
                 inputStack = inputStack + reduceProduction.get(0);
             }
-
         }
 
         return false;
