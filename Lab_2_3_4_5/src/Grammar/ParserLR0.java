@@ -1,12 +1,14 @@
 package Grammar;
 
 import Helpers.ProductionDotIndexTuple;
-import Helpers.StringsTuple;
+import Tests.TestFA;
+import com.sun.source.tree.Tree;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ParserLR0 {
+    private TreeNode root = null;
     private Grammar grammar;
     private Map<Integer, String> actionTable = new HashMap<>();
 
@@ -261,24 +263,47 @@ public class ParserLR0 {
         String inputStack = inputString;
         String outputBand = "";
         boolean isAccepted = false;
+        List <TreeNode> children = new ArrayList<>();
 
         while (!isAccepted) {
             var workStackTopStateId = workStack.charAt(workStack.length() - 1) - '0';
             var action = actionTable.get(workStackTopStateId);
             if(action.compareTo("acc") == 0) {
                 System.out.println("Output band: " + outputBand);
+                System.out.println("Work stack: " + workStack);
+                System.out.println("Input stack: " + inputStack);
+                System.out.println(children.get(0));
                 return true;
             } else if(action.compareTo("shift") == 0) {
                 // symbol is either a terminal or a non-terminal
                 var symbol = inputStack.charAt(0);
+                System.out.println(symbol);
                 workStack = workStack + symbol;
                 inputStack = inputStack.substring(1);
                 var nextStateId = gotoOp(workStackTopStateId, String.valueOf(symbol));
                 workStack = workStack + nextStateId;
+                if (symbol >= 'a' && symbol <= 'z') children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
             } else {
                 var reduceAction = action.split(" ");
                 var reduceProductionId = reduceAction[1].charAt(0) - '0';
                 var reduceProduction = grammar.productionList.get(reduceProductionId);
+                System.out.println(reduceProduction);
+                List <String> needed = reduceProduction.subList(1, reduceProduction.size());
+                needed = new ArrayList<>(needed);
+                List <TreeNode> sublist = new ArrayList<>();
+                for (var child: children) {
+                    if (needed.contains(child.name)) {
+                        needed.remove(child.name);
+                        if (!sublist.isEmpty()) {
+                            sublist.get(sublist.size()-1).rightSibling = child.index;
+                        }
+                        sublist.add(child);
+                    }
+                }
+                for (var child : sublist) {
+                    children.remove(child);
+                }
+                children.add(new TreeNode(reduceProduction.get(0), sublist));
                 var reduceProductionRhsSymbolsList = reduceProduction.subList(1, reduceProduction.size());
                 // do the actual reduction
                 var workStackIndex = workStack.length() - 1;
@@ -301,6 +326,7 @@ public class ParserLR0 {
                 workStack = workStack.substring(0, workStackIndex);
                 inputStack = inputStack + reduceProduction.get(0);
             }
+
         }
 
         return false;
