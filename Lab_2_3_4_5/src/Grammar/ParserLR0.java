@@ -306,7 +306,7 @@ public class ParserLR0 {
                 inputStack = inputStack.substring(1);
                 var nextStateId = gotoOp(workStackTopStateId, String.valueOf(symbol));
                 workStack = workStack + nextStateId;
-                if (grammar.nonterminalList.contains(symbol)) children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
+                if (grammar.terminalList.contains(String.valueOf(symbol))) children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
             } else {
                 var reduceAction = action.split(" ");
                 var reduceProductionId = reduceAction[1].charAt(0) - '0';
