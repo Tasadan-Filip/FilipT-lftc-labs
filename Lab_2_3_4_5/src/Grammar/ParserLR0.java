@@ -224,6 +224,19 @@ public class ParserLR0 {
                             }
                             GotoTable.register(idxOfState, X, idxOf, gotoTable);
                         }
+                        else if (toAdd.toString().contains(newState.toString())) {
+                            var otherIdx = 0;
+                            var idxOf = -1;
+                            for (var other : C) {
+                                if (other.toString().equals(newState.toString())) {
+                                    idxOf = otherIdx;
+                                }
+                                else {
+                                    otherIdx += 1;
+                                }
+                            }
+                            GotoTable.register(idxOfState, X, C.size() + idxOf, gotoTable);
+                        }
                         else if (!newState.isEmpty() && !C.contains(newState)) {
                             GotoTable.register(idxOfState, X, C.size(), gotoTable);
                             toAdd.add(newState);
@@ -306,11 +319,13 @@ public class ParserLR0 {
                 inputStack = inputStack.substring(1);
                 var nextStateId = gotoOp(workStackTopStateId, String.valueOf(symbol));
                 workStack = workStack + nextStateId;
+                System.out.println(symbol);
                 if (grammar.terminalList.contains(String.valueOf(symbol))) children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
             } else {
                 var reduceAction = action.split(" ");
                 var reduceProductionId = reduceAction[1].charAt(0) - '0';
                 var reduceProduction = grammar.productionList.get(reduceProductionId);
+                System.out.println(reduceProduction);
                 List <String> needed = reduceProduction.subList(1, reduceProduction.size());
                 needed = new ArrayList<>(needed);
                 List <TreeNode> sublist = new ArrayList<>();
