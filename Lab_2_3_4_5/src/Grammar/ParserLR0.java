@@ -243,6 +243,7 @@ public class ParserLR0 {
     }
 
     public void printGotoTable() {
+        System.out.println("GoTo table: ");
         var C = colCanLR();
 
         for (int stateId=0; stateId<C.size(); stateId++) {
@@ -277,6 +278,17 @@ public class ParserLR0 {
         for(var actionTableKey : actionTable.keySet().stream().sorted().collect(Collectors.toList())) {
             System.out.println(actionTableKey + " | " + actionTable.get(actionTableKey));
         }
+
+//        for (int stateId=0; stateId<lr0Closure.size(); stateId++) {
+//            System.out.print(stateId + " |");
+//            for (var nonterm : grammar.nonterminalList) {
+//                System.out.print(gotoOp(stateId, nonterm) + " ");
+//            }
+//            for (var term : grammar.terminalList) {
+//                System.out.print(gotoOp(stateId, term) + " ");
+//            }
+//            System.out.println("");
+//        }
     }
 
     public boolean checkIfStringIsAcceptedByGrammar(String inputString) throws Exception {
