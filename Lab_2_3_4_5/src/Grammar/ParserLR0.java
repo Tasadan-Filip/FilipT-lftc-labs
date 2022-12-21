@@ -45,7 +45,7 @@ public class ParserLR0 {
                     //  currentDotIndex = 0
                     if (currentDotIndex < currentProductionRhs.size()) {
                         var currentSource = currentProductionRhs.get(currentDotIndex);
-                        if (currentSource.charAt(0) >= 'A' && currentSource.charAt(0) <= 'Z') {
+                        if (grammar.nonterminalList.contains(currentSource)) {
                             for (var production : this.grammar.productionMap.get(currentSource)) {
                                 if (production.isEmpty()) continue;
                                 //  productionRhs = [A B]
@@ -137,6 +137,9 @@ public class ParserLR0 {
             if (count > 1) {
                 System.out.println("Reduce-reduce conflict!");
                 System.out.println(stateProductions);
+            }
+            if (count == 1) {
+                return true;
             }
         }
         return  stateProductions.size() == 1 &&
@@ -303,7 +306,7 @@ public class ParserLR0 {
                 inputStack = inputStack.substring(1);
                 var nextStateId = gotoOp(workStackTopStateId, String.valueOf(symbol));
                 workStack = workStack + nextStateId;
-                if (symbol >= 'a' && symbol <= 'z') children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
+                if (grammar.nonterminalList.contains(symbol)) children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
             } else {
                 var reduceAction = action.split(" ");
                 var reduceProductionId = reduceAction[1].charAt(0) - '0';
