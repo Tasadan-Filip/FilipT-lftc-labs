@@ -1,8 +1,8 @@
-S,VAR_DECL,TYPE,IDEN,LETTER
-0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,", ,[,],&,i,s,
+S,X,Y,Z,L
+a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,-
 S
-S$VAR_DECL
-VAR_DECL$TYPE, ,IDEN
-TYPE$i;TYPE$s;
-IDEN$LETTER;IDEN$LETTER,IDEN;
-LETTER$a;LETTER$b;LETTER$c;LETTER$d;LETTER$e;LETTER$f;LETTER$g;LETTER$h;LETTER$i;LETTER$j;LETTER$k;LETTER$l;LETTER$m;LETTER$n;LETTER$o;LETTER$p;LETTER$q;LETTER$r;LETTER$s;LETTER$t;LETTER$u;LETTER$v;LETTER$w;LETTER$x;LETTER$y;LETTER$z;
+S$X
+X$Y,-,Z
+Y$i;Y$s;
+Z$L;Z$L,Z;
+L$a;L$b;L$c;L$d;L$e;L$f;L$g;L$h;L$i;L$j;L$k;L$l;L$m;L$n;L$o;L$p;L$q;L$r;L$s;L$t;L$u;L$v;L$w;L$x;L$y;L$z;
