@@ -31,16 +31,18 @@ public class TreeNode {
     }
 
     private void print(StringBuilder buffer, String prefix, String childrenPrefix) {
-        buffer.append(prefix);
-        buffer.append(name);
-        buffer.append('\n');
+        buffer.append("index name parent sibling");
+        buffer.append("\n");
         for (Iterator<TreeNode> it = children.iterator(); ((Iterator<?>) it).hasNext();) {
             TreeNode next = it.next();
-            if (it.hasNext()) {
-                next.print(buffer, childrenPrefix + "├── ", childrenPrefix + "│   ");
-            } else {
-                next.print(buffer, childrenPrefix + "└── ", childrenPrefix + "    ");
-            }
+            buffer.append(next.index);
+            buffer.append(" ");
+            buffer.append(next.name);
+            buffer.append(" ");
+            buffer.append(next.parent);
+            buffer.append(" ");
+            buffer.append(next.rightSibling);
+            buffer.append("\n");
         }
     }
 }
