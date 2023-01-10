@@ -306,6 +306,7 @@ public class ParserLR0 {
         while (!isAccepted) {
             var workStackTopStateId = workStack.charAt(workStack.length() - 1) - '0';
             var action = actionTable.get(workStackTopStateId);
+//            System.out.println(workStackTopStateId + " " + action);
             if(action.compareTo("acc") == 0) {
                 System.out.println("Output band: " + outputBand);
                 System.out.println("Work stack: " + workStack);
@@ -319,13 +320,13 @@ public class ParserLR0 {
                 inputStack = inputStack.substring(1);
                 var nextStateId = gotoOp(workStackTopStateId, String.valueOf(symbol));
                 workStack = workStack + nextStateId;
-                System.out.println(symbol);
+//                System.out.println(symbol);
                 if (grammar.terminalList.contains(String.valueOf(symbol))) children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
             } else {
                 var reduceAction = action.split(" ");
                 var reduceProductionId = reduceAction[1].charAt(0) - '0';
                 var reduceProduction = grammar.productionList.get(reduceProductionId);
-                System.out.println(reduceProduction);
+//                System.out.println(reduceProduction);
                 List <String> needed = reduceProduction.subList(1, reduceProduction.size());
                 needed = new ArrayList<>(needed);
                 List <TreeNode> sublist = new ArrayList<>();
@@ -362,7 +363,7 @@ public class ParserLR0 {
                 }
                 outputBand = reduceProductionId + outputBand;
                 workStack = workStack.substring(0, workStackIndex);
-                inputStack = inputStack + reduceProduction.get(0);
+                inputStack = reduceProduction.get(0) + inputStack;
             }
         }
 
