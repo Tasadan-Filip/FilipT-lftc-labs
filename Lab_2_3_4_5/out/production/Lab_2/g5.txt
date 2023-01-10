@@ -1,0 +1,8 @@
+S,X,Y,Z,L
+a,b,c,i,s,-
+S
+S$X
+X$Y,-,Z
+Y$i;Y$s;
+Z$L;Z$L,Z;
+L$a;L$b;L$c;
