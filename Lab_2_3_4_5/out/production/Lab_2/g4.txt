@@ -1,0 +1,8 @@
+S,X,Y,Z,L
+a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,-
+S
+S$X
+X$Y,-,Z
+Y$i;Y$s;
+Z$L;Z$L,Z;
+L$a;L$b;L$c;L$d;L$e;L$f;L$g;L$h;L$j;L$k;L$l;L$m;L$n;L$o;L$p;L$q;L$r;L$t;L$u;L$v;L$w;L$x;L$y;L$z;

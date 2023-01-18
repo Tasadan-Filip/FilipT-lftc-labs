@@ -1,16 +1,18 @@
 package Grammar;
 
 import Helpers.ProductionDotIndexTuple;
-import Helpers.StringsTuple;
+import Tests.TestFA;
+import com.sun.source.tree.Tree;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ParserLR0 {
+    private TreeNode root = null;
     private Grammar grammar;
-    private Map<String, String> actionTable;
+    private Map<Integer, String> actionTable = new HashMap<>();
 
-    private List<Map<String, Integer>> gotoTable;
+    private final List<Map<String, Integer>> gotoTable = new ArrayList<>();
 
     public ParserLR0(Grammar grammar) {
         this.grammar = grammar;
@@ -19,7 +21,7 @@ public class ParserLR0 {
     public Map<String, List<ProductionDotIndexTuple>> computeClosureLR0(String source, List<ProductionDotIndexTuple> initialProductions)
     {
         // A -> .ABa
-        // source: A, destination: [A B a], dotIndex = 0
+        // source: A, initialProductions: {[A B a], dotIndex = 0}
 
         Map<String, List<ProductionDotIndexTuple>> closure = new HashMap<>();
         closure.put(source, initialProductions);
@@ -27,65 +29,88 @@ public class ParserLR0 {
 
         while (isClosureChanged) {
             isClosureChanged = false;
-            for(var productionDotTupleList: closure.values()) {
-                for(var productionDotTuple: productionDotTupleList) {
+            List<ProductionDotIndexTuple> closureValues = new ArrayList<>();
+            for (var productionDotTupleList: closure.values()) {
+                for (var productionDotTuple: productionDotTupleList) {
+                    closureValues.add(new ProductionDotIndexTuple(
+                            productionDotTuple.getProductionSource(),
+                            productionDotTuple.getProductionRhs(),
+                            productionDotTuple.getDotIndex()));
+                }
+            }
+            for (var productionDotTuple: closureValues) {
                     var currentProductionRhs = productionDotTuple.getProductionRhs();
+                    //  currentProductionRhs = [A B a]
                     var currentDotIndex = productionDotTuple.getDotIndex();
-                    if(currentDotIndex < currentProductionRhs.size()) {
+                    //  currentDotIndex = 0
+                    if (currentDotIndex < currentProductionRhs.size()) {
                         var currentSource = currentProductionRhs.get(currentDotIndex);
-                        if(currentSource.charAt(0) >= 'A' && currentSource.charAt(0) <= 'Z') {
-                            for(var production : this.grammar.productionMap.get(currentSource)) {
-                                var productionRhs = Arrays.asList(production.split(","));
+                        if (grammar.nonterminalList.contains(currentSource)) {
+                            for (var production : this.grammar.productionMap.get(currentSource)) {
+                                if (production.isEmpty()) continue;
+                                //  productionRhs = [A B]
+                                if (!closure.containsKey(currentSource)) {
+                                    closure.put(currentSource, new ArrayList<>(List.of(new ProductionDotIndexTuple(currentSource, production, 0))));
+                                    isClosureChanged = true;
+                                    continue;
+                                }
                                 var currentSourceProductionsList = closure.get(currentSource);
+                                //  currentSourceProductionsList = [{[A B], dotIndex - }]
                                 var isProductionAlreadyInList = false;
 
-                                for(var productionDotTupleToCheck: currentSourceProductionsList) {
+                                for (var productionDotTupleToCheck: currentSourceProductionsList) {
                                     var productionDotTupleToCheckRhs = productionDotTupleToCheck.getProductionRhs();
-                                    if(productionDotTupleToCheckRhs.size() == productionRhs.size()) {
-                                        var areProductionSymbolsAllDifferent = true;
-                                        for(int i = 0; i < productionRhs.size(); i++) {
-                                            if(!productionDotTupleToCheckRhs.get(i).equals(productionRhs.get(i))) {
-                                                areProductionSymbolsAllDifferent = false;
+                                    if (productionDotTupleToCheckRhs.size() == production.size()) {
+                                        var areProductionSymbolsTheSame = true;
+                                        for(int i = 0; i < production.size(); i++) {
+                                            if(!productionDotTupleToCheckRhs.get(i).equals(production.get(i))) {
+                                                areProductionSymbolsTheSame = false;
                                                 break;
                                             }
                                         }
-                                        if(areProductionSymbolsAllDifferent) {
+                                        if (areProductionSymbolsTheSame && productionDotTupleToCheck.getDotIndex() == 0) {
                                             isProductionAlreadyInList = true;
                                             break;
                                         }
                                     }
                                 }
                                 if(!isProductionAlreadyInList) {
-                                    currentSourceProductionsList.add(new ProductionDotIndexTuple(currentSource ,productionRhs, 0));
+                                    currentSourceProductionsList.add(new ProductionDotIndexTuple(currentSource, production, 0));
                                     isClosureChanged = true;
                                 }
                             }
                         }
                     }
-                }
             }
         }
 
         return closure;
     }
 
-    private void populateActionTable(List<List<ProductionDotIndexTuple>> closure, List<ProductionDotIndexTuple> initialProductions) {
+    private void populateActionTable(List<Map<String, List<ProductionDotIndexTuple>>> closure, Map<String, List<List<String>>>  initialProductionsMap) {
         Integer currentStateIndex = 0;
 
         for(var stateProductions : closure) {
-            if(isAccept(stateProductions)) {
-                actionTable.put("s" + currentStateIndex, "acc");
+            if (isAccept(stateProductions) && isReduce(stateProductions)) {
+                System.out.println("Shift-Reduce conflict detected!");
+                System.out.println(stateProductions);
+            }
+            else if(isAccept(stateProductions)) {
+                actionTable.put(currentStateIndex, "acc");
             } else if(isReduce(stateProductions)) {
-                actionTable.put("s" + currentStateIndex, "reduce " + getInitialProductionIndex(stateProductions.get(0), initialProductions));
+                var onlyKey = stateProductions.keySet().toArray()[0].toString();
+                var production = stateProductions.get(onlyKey).get(0);
+                actionTable.put(currentStateIndex, "reduce " + getInitialProductionIndex(production));
             } else {
-                actionTable.put("s" + currentStateIndex, "shift");
+                actionTable.put(currentStateIndex, "shift");
             }
             currentStateIndex = currentStateIndex + 1;
         }
     }
 
-    private boolean isAccept(List<ProductionDotIndexTuple> stateProductions) {
-        var production = stateProductions.get(0);
+    private boolean isAccept(Map<String, List<ProductionDotIndexTuple>> stateProductions) {
+        var onlyKey = stateProductions.keySet().toArray()[0].toString();
+        var production = stateProductions.get(onlyKey).get(0);
         return  stateProductions.size() == 1 &&
                 production.getProductionSource().compareTo("S'") == 0 &&
                 production.getProductionRhs().size() == 1 &&
@@ -93,30 +118,49 @@ public class ParserLR0 {
                 production.getDotIndex() == 1;
     }
 
-    private boolean isReduce(List<ProductionDotIndexTuple> stateProductions) {
-        var production = stateProductions.get(0);
+    private boolean isReduce(Map<String, List<ProductionDotIndexTuple>> stateProductions) {
+        var onlyKey = stateProductions.keySet().toArray()[0].toString();
+        var production = stateProductions.get(onlyKey).get(0);
+        //  false negative
+        System.out.println(stateProductions);
+        if (stateProductions.containsKey("S'")) return false;
+        //  conflict detection
+        if (stateProductions.size() > 1) {
+            int count = 0;
+            for (var key : stateProductions.keySet()) {
+                var value = stateProductions.get(key);
+                for (var prod : value) {
+                    if (prod.getDotIndex() == prod.getProductionRhs().size())
+                        count ++;
+                }
+            }
+            if (count > 1) {
+                System.out.println("Reduce-reduce conflict!");
+                System.out.println(stateProductions);
+            }
+            if (count == 1) {
+                return true;
+            }
+        }
         return  stateProductions.size() == 1 &&
-                production.getProductionRhs().size() == 1 &&
-                production.getDotIndex() == 1;
+                production.getDotIndex() == production.getProductionRhs().size();
     }
 
-    private int getInitialProductionIndex(ProductionDotIndexTuple production, List<ProductionDotIndexTuple> initialProductionList) {
+    private int getInitialProductionIndex(ProductionDotIndexTuple production) {
         int index = 0;
-        for(var initialProduction : initialProductionList) {
-            if(production.getProductionSource().compareTo(initialProduction.getProductionSource()) == 0
-            ) {
-                var productionRhs = production.getProductionRhs();
-                var initialProductionRhs = initialProduction.getProductionRhs();
-                if(productionRhs.size() == initialProductionRhs.size()) {
-                    boolean areRhsTheSame = true;
-                    for(int i = 0; i < productionRhs.size(); i++) {
-                        if(productionRhs.get(i).compareTo(initialProductionRhs.get(i)) != 0) {
-                            areRhsTheSame = false;
-                        }
+
+        for(var initialProductionAsStringList : grammar.productionList) {
+            var productionRhs = production.getProductionRhs();
+            if (productionRhs.size() == initialProductionAsStringList.size() - 1) {
+                boolean areRhsTheSame = true;
+                for (int i = 0; i < productionRhs.size(); i++) {
+                    if (productionRhs.get(i).compareTo(initialProductionAsStringList.get(1 + i)) != 0) {
+                        areRhsTheSame = false;
+                        break;
                     }
-                    if(areRhsTheSame) {
-                        return index;
-                    }
+                }
+                if (areRhsTheSame) {
+                    return index;
                 }
             }
             index = index + 1;
@@ -135,6 +179,7 @@ public class ParserLR0 {
             for (var rhs : production.getValue()) {
                 int index = rhs.getDotIndex();
                 if (!rhs.getProductionRhs().contains(X)) continue;
+                if (rhs.getProductionRhs().isEmpty()) continue;
                 if (rhs.getProductionRhs().indexOf(X) == rhs.getDotIndex())
                 {
                     C2.add(new ProductionDotIndexTuple(lhs,rhs.getProductionRhs(), index+1));
@@ -149,30 +194,58 @@ public class ParserLR0 {
     {
         List<Map<String, List<ProductionDotIndexTuple>>> C = new ArrayList<>();
 
-        C.add(computeClosureLR0("S", List.of(new ProductionDotIndexTuple("S",List.of("S"), 0))));
+        C.add(computeClosureLR0("S'", new ArrayList<>(List.of(new ProductionDotIndexTuple("S'",List.of("S"), 0)))));
 
-        var grammarElements = grammar.nonterminalList;
+        var grammarElements = new ArrayList<>(grammar.nonterminalList);
         grammarElements.addAll(grammar.terminalList);
 
         boolean done = false;
         while (!done) {
             done = true;
+            List<Map<String, List<ProductionDotIndexTuple>>> toAdd = new ArrayList<>();
             for (var state : C) {
                 var idxOfState = C.indexOf(state);
                 for (var X : grammarElements) {
                     var gotoSubcall = goTo(state, X);
                     for (var newState : gotoSubcall) {
-                        if (!newState.isEmpty() && C.contains(newState)) {
-                            GotoTable.register(idxOfState, X, C.size(), gotoTable);
-                            C.add(newState);
+                        if (newState.toString().contains("[]")) {
+                            continue;
                         }
-                        if (C.contains(newState)) {
-                            var idxOf = C.indexOf(newState);
-                            GotoTable.register(idxOf, X, idxOf, gotoTable);
+                        if (C.toString().contains(newState.toString())) {
+                            var otherIdx = 0;
+                            var idxOf = -1;
+                            for (var other : C) {
+                                if (other.toString().equals(newState.toString())) {
+                                    idxOf = otherIdx;
+                                }
+                                else {
+                                    otherIdx += 1;
+                                }
+                            }
+                            GotoTable.register(idxOfState, X, idxOf, gotoTable);
+                        }
+                        else if (toAdd.toString().contains(newState.toString())) {
+                            var otherIdx = 0;
+                            var idxOf = -1;
+                            for (var other : C) {
+                                if (other.toString().equals(newState.toString())) {
+                                    idxOf = otherIdx;
+                                }
+                                else {
+                                    otherIdx += 1;
+                                }
+                            }
+                            GotoTable.register(idxOfState, X, C.size() + idxOf, gotoTable);
+                        }
+                        else if (!newState.isEmpty() && !C.contains(newState)) {
+                            GotoTable.register(idxOfState, X, C.size(), gotoTable);
+                            toAdd.add(newState);
+                            done = false;
                         }
                     }
                 }
             }
+            C.addAll(toAdd);
         }
 
         return C;
@@ -189,22 +262,111 @@ public class ParserLR0 {
             System.out.println(stateId + ": " + C.get(stateId));
         }
 
-        System.out.println("  |");
+        System.out.print("    ");
         for (var nonterm : grammar.nonterminalList) {
-            System.out.println(nonterm);
+            System.out.print(nonterm + " ");
         }
-        for (var term : grammar.nonterminalList) {
-            System.out.println(term);
+        for (var term : grammar.terminalList) {
+            System.out.print(term + " ");
         }
+        System.out.println("");
 
         for (int stateId=0; stateId<C.size(); stateId++) {
-            System.out.println(stateId + " |");
+            System.out.print(stateId + " |");
             for (var nonterm : grammar.nonterminalList) {
-                System.out.println(gotoOp(stateId, nonterm));
+                System.out.print(gotoOp(stateId, nonterm) + " ");
             }
-            for (var term : grammar.nonterminalList) {
-                System.out.println(gotoOp(stateId, term));
+            for (var term : grammar.terminalList) {
+                System.out.print(gotoOp(stateId, term) + " ");
+            }
+            System.out.println("");
+        }
+    }
+
+    public void printActionTable() {
+        System.out.println("Action table: ");
+        var lr0Closure = colCanLR();
+        populateActionTable(lr0Closure, grammar.productionMap);
+        for(var actionTableKey : actionTable.keySet().stream().sorted().collect(Collectors.toList())) {
+            System.out.println(actionTableKey + " | " + actionTable.get(actionTableKey));
+        }
+    }
+
+    public boolean checkIfStringIsAcceptedByGrammar(String inputString) throws Exception {
+        // Work stack is represented as a string in order to be easier for us to find and replace the corresponding symbols
+        // when doing reduce. The digits (in our case: 0-6) represent the states, capital letters represent the non-terminals and
+        // lowercase letters represent terminals
+        // We initialize the work stack with 0
+        String workStack = "0";
+        String inputStack = inputString;
+        String outputBand = "";
+        boolean isAccepted = false;
+        List <TreeNode> children = new ArrayList<>();
+
+        while (!isAccepted) {
+            var workStackTopStateId = workStack.charAt(workStack.length() - 1) - '0';
+            var action = actionTable.get(workStackTopStateId);
+//            System.out.println(workStackTopStateId + " " + action);
+            if(action.compareTo("acc") == 0) {
+                System.out.println("Output band: " + outputBand);
+                System.out.println("Work stack: " + workStack);
+                System.out.println("Input stack: " + inputStack);
+                System.out.println(children.get(0));
+                return true;
+            } else if(action.compareTo("shift") == 0) {
+                // symbol is either a terminal or a non-terminal
+                var symbol = inputStack.charAt(0);
+                workStack = workStack + symbol;
+                inputStack = inputStack.substring(1);
+                var nextStateId = gotoOp(workStackTopStateId, String.valueOf(symbol));
+                workStack = workStack + nextStateId;
+//                System.out.println(symbol);
+                if (grammar.terminalList.contains(String.valueOf(symbol))) children.add(new TreeNode(Character.toString(symbol), new ArrayList<>()));
+            } else {
+                var reduceAction = action.split(" ");
+                var reduceProductionId = reduceAction[1].charAt(0) - '0';
+                var reduceProduction = grammar.productionList.get(reduceProductionId);
+//                System.out.println(reduceProduction);
+                List <String> needed = reduceProduction.subList(1, reduceProduction.size());
+                needed = new ArrayList<>(needed);
+                List <TreeNode> sublist = new ArrayList<>();
+                for (var child: children) {
+                    if (needed.contains(child.name)) {
+                        needed.remove(child.name);
+                        if (!sublist.isEmpty()) {
+                            sublist.get(sublist.size()-1).rightSibling = child.index;
+                        }
+                        sublist.add(child);
+                    }
+                }
+                for (var child : sublist) {
+                    children.remove(child);
+                }
+                children.add(new TreeNode(reduceProduction.get(0), sublist));
+                var reduceProductionRhsSymbolsList = reduceProduction.subList(1, reduceProduction.size());
+                // do the actual reduction
+                var workStackIndex = workStack.length() - 1;
+                for(int reduceProductionSymbolsIndex = reduceProductionRhsSymbolsList.size() - 1; reduceProductionSymbolsIndex >= 0; reduceProductionSymbolsIndex--) {
+                    var isSymbolInWorkStack = false;
+                    workStackIndex = workStack.length() - 1;
+                    var reduceProductionCurrentSymbol = reduceProductionRhsSymbolsList.get(reduceProductionSymbolsIndex);
+                    while (workStackIndex >= 0) {
+                        if(workStack.charAt(workStackIndex) == reduceProductionCurrentSymbol.charAt(0)) {
+                            isSymbolInWorkStack = true;
+                            break;
+                        }
+                        workStackIndex = workStackIndex - 1;
+                    }
+                    if(!isSymbolInWorkStack) {
+                        throw new Exception("Symbol is not in work stack. There is an error!");
+                    }
+                }
+                outputBand = reduceProductionId + outputBand;
+                workStack = workStack.substring(0, workStackIndex);
+                inputStack = reduceProduction.get(0) + inputStack;
             }
         }
+
+        return false;
     }
 }
